@@ -60,22 +60,6 @@ Visit `http://localhost:3000` to see the app.
    - **Frontend**: `NEXT_PUBLIC_API_URL`.
 4. Railway will automatically detect the `package.json` in each directory and deploy.
 
-## 📽 Demo Script
-
-### 1. Introduction (30s)
-"Hi, I'm [Name]. I built Ethara AI, a Team Task Manager designed to solve the chaos of team collaboration using strict role-based access control."
-
-### 2. Live Flow (2m)
-- **Auth**: Show login/signup.
-- **Teams**: Create a team.
-- **Projects**: Create a project within the team.
-- **Tasks**: Create tasks and assign them to team members.
-- **Board**: Move tasks between TODO, IN_PROGRESS, and DONE.
-- **RBAC**: Show how a Member cannot delete projects or edit other people's tasks.
-
-### 3. Dashboard (30s)
-"The dashboard provides a high-level overview of team progress and personal responsibilities."
-
 ## ⚠️ Known Limitations
 - Real-time updates (WebSockets) are not yet implemented.
 - No email notifications for task assignments.
