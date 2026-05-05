@@ -1,0 +1,1 @@
+{"version":3,"file":"projectService.d.ts","sourceRoot":"","sources":["projectService.ts"],"names":[],"mappings":"AAEA,OAAO,EAAE,CAAC,EAAE,MAAM,KAAK,CAAC;AAExB,eAAO,MAAM,mBAAmB;;;iBAG9B,CAAC;AAEH,qBAAa,cAAc;WACZ,WAAW,CAAC,MAAM,EAAE,MAAM;;;;;;;;;;;WAW1B,aAAa,CAAC,IAAI,EAAE,CAAC,CAAC,KAAK,CAAC,OAAO,mBAAmB,CAAC;;;;;;;WASvD,aAAa,CAAC,EAAE,EAAE,MAAM;;;;;;;CAKtC"}
