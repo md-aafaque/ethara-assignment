@@ -13,7 +13,7 @@ router.use(authenticate);
 
 router.get('/', authorizeTeamRole([Role.ADMIN, Role.MEMBER]), TaskController.getTasks);
 router.post('/', validateBody(createTaskSchema), authorizeTeamRole([Role.ADMIN]), TaskController.createTask);
-router.patch('/:id', validateBody(updateTaskSchema), TaskController.updateTask); // RBAC handled inside controller/service
-router.delete('/:id', TaskController.deleteTask); // RBAC handled inside controller/service
+router.patch('/:id', validateBody(updateTaskSchema), TaskController.updateTask);
+router.delete('/:id', authorizeTeamRole([Role.ADMIN]), TaskController.deleteTask);
 
 export default router;
