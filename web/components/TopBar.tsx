@@ -56,7 +56,7 @@ export function TopBar() {
       <div className="flex items-center space-x-3">
         <div className="text-right">
           <p className="text-sm font-semibold text-slate-900">{user?.name || 'Loading...'}</p>
-          <p className="text-xs text-slate-500">Member</p>
+          <p className="text-xs text-slate-500">Admin</p>
         </div>
         <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 text-slate-600">
           <User className="h-6 w-6" />
