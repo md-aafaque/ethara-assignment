@@ -1,4 +1,6 @@
 import { TeamProvider } from '@/context/TeamContext';
+import { AuthGuard } from '@/components/AuthGuard';
+import { AppShell } from '@/components/AppShell';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -17,9 +19,15 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <TeamProvider>
-        <body className={inter.className}>{children}</body>
-      </TeamProvider>
+      <body className={inter.className}>
+        <TeamProvider>
+          <AuthGuard>
+            <AppShell>
+              {children}
+            </AppShell>
+          </AuthGuard>
+        </TeamProvider>
+      </body>
     </html>
   );
 }

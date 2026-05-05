@@ -2,12 +2,14 @@
 // web/app/dashboard/page.tsx
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
+import { useTeam } from '@/context/TeamContext';
 import { 
   CheckCircle2, 
   Clock, 
   AlertCircle, 
   ListTodo,
-  ArrowRight
+  ArrowRight,
+  Plus
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,13 +21,16 @@ interface DashboardStats {
 }
 
 export default function DashboardPage() {
+  const { activeTeam, teams, isLoading: teamsLoading } = useTeam();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
+      setIsLoading(true);
       try {
-        const data = await apiFetch('/dashboard');
+        const url = activeTeam ? `/dashboard?teamId=${activeTeam.id}` : '/dashboard';
+        const data = await apiFetch(url);
         setStats(data);
       } catch (err) {
         console.error(err);
@@ -33,10 +38,33 @@ export default function DashboardPage() {
         setIsLoading(false);
       }
     }
-    fetchStats();
-  }, []);
+    
+    if (!teamsLoading) {
+      fetchStats();
+    }
+  }, [activeTeam, teamsLoading]);
 
-  if (isLoading) return <div className="flex h-full items-center justify-center text-slate-500">Loading your stats...</div>;
+  if (teamsLoading || isLoading) return <div className="flex h-full items-center justify-center text-slate-500">Loading your stats...</div>;
+
+  if (teams.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] space-y-6 text-center">
+        <div className="bg-blue-50 p-6 rounded-full">
+          <ListTodo className="h-12 w-12 text-blue-600" />
+        </div>
+        <div className="max-w-md">
+          <h1 className="text-2xl font-bold text-slate-900">Welcome to Ethera AI</h1>
+          <p className="text-slate-500 mt-2">To get started, you'll need to create or join a team. Teams are where projects and tasks live.</p>
+        </div>
+        <Link 
+          href="/teams"
+          className="flex items-center rounded-lg bg-blue-600 px-6 py-3 text-sm font-bold text-white shadow-lg shadow-blue-200 transition-all hover:bg-blue-700 active:scale-95"
+        >
+          <Plus className="mr-2 h-4 w-4" /> Create your first team
+        </Link>
+      </div>
+    );
+  }
 
   const cards = [
     { title: 'Total Tasks', value: stats?.totalTasks || 0, icon: ListTodo, color: 'text-blue-600', bg: 'bg-blue-50' },

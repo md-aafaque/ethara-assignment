@@ -1,6 +1,6 @@
 "use client";
 // web/context/TeamContext.tsx
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { apiFetch } from '@/lib/api';
 
 interface Team {
@@ -14,6 +14,7 @@ interface TeamContextType {
   setActiveTeam: (team: Team) => void;
   refreshTeams: () => Promise<void>;
   isLoading: boolean;
+  logout: () => void;
 }
 
 const TeamContext = createContext<TeamContextType | undefined>(undefined);
@@ -23,22 +24,48 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   const [activeTeam, setActiveTeam] = useState<Team | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const refreshTeams = async () => {
+  const logout = useCallback(() => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('activeTeamId');
+    setTeams([]);
+    setActiveTeam(null);
+  }, []);
+
+  const refreshTeams = useCallback(async () => {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) {
+      setTeams([]);
+      setActiveTeam(null);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const data = await apiFetch('/teams');
       setTeams(data);
-      if (data.length > 0 && !activeTeam) {
-        // Default to first team or previously stored team
+      
+      if (data.length > 0) {
         const savedTeamId = localStorage.getItem('activeTeamId');
-        const found = data.find((t: Team) => t.id === savedTeamId) || data[0];
-        setActiveTeam(found);
+        // If we have an active team and it's still in the list, keep it.
+        // Otherwise try to find the saved one, or default to first.
+        const currentActiveStillExists = activeTeam ? data.find((t: Team) => t.id === activeTeam.id) : null;
+        
+        if (!currentActiveStillExists) {
+          const found = data.find((t: Team) => t.id === savedTeamId) || data[0];
+          setActiveTeam(found);
+        }
+      } else {
+        setActiveTeam(null);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch teams', err);
+      if (err.message === 'Unauthorized' || err.message === 'jwt expired') {
+        logout();
+      }
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [activeTeam, logout]);
 
   useEffect(() => {
     refreshTeams();
@@ -47,11 +74,13 @@ export function TeamProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (activeTeam) {
       localStorage.setItem('activeTeamId', activeTeam.id);
+    } else {
+      localStorage.removeItem('activeTeamId');
     }
   }, [activeTeam]);
 
   return (
-    <TeamContext.Provider value={{ teams, activeTeam, setActiveTeam, refreshTeams, isLoading }}>
+    <TeamContext.Provider value={{ teams, activeTeam, setActiveTeam, refreshTeams, isLoading, logout }}>
       {children}
     </TeamContext.Provider>
   );

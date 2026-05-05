@@ -13,6 +13,22 @@ export class ProjectController {
     }
   }
 
+  static async getProjectById(req: AuthRequest, res: Response) {
+    try {
+      const { id } = req.params;
+      // @ts-ignore
+      const project = await ProjectService.getProjectById(id);
+
+      if (!project) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+
+      res.json(project);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
+
   static async createProject(req: AuthRequest, res: Response) {
     try {
       const project = await ProjectService.createProject(req.body);
@@ -24,6 +40,7 @@ export class ProjectController {
 
   static async deleteProject(req: AuthRequest, res: Response) {
     try {
+      // @ts-ignore
       await ProjectService.deleteProject(req.params.id, req.user!.id);
       res.status(204).send();
     } catch (error: any) {

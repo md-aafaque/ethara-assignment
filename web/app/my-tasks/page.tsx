@@ -2,6 +2,7 @@
 // web/app/my-tasks/page.tsx
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
+import { useTeam } from '@/context/TeamContext';
 import { ListChecks, Clock, AlertCircle } from 'lucide-react';
 
 interface Task {
@@ -14,13 +15,16 @@ interface Task {
 }
 
 export default function MyTasksPage() {
+  const { activeTeam, isLoading: teamsLoading } = useTeam();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchMyTasks() {
+      setIsLoading(true);
       try {
-        const data = await apiFetch('/dashboard');
+        const url = activeTeam ? `/dashboard?teamId=${activeTeam.id}` : '/dashboard';
+        const data = await apiFetch(url);
         setTasks(data.myTasks);
       } catch (err) {
         console.error(err);
@@ -28,16 +32,23 @@ export default function MyTasksPage() {
         setIsLoading(false);
       }
     }
-    fetchMyTasks();
-  }, []);
+    
+    if (!teamsLoading) {
+      fetchMyTasks();
+    }
+  }, [activeTeam, teamsLoading]);
 
-  if (isLoading) return <div className="text-slate-500">Loading your tasks...</div>;
+  if (teamsLoading || isLoading) return <div className="text-slate-500">Loading your tasks...</div>;
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-slate-900">My Tasks</h1>
-        <p className="text-slate-500">All tasks assigned to you across all teams.</p>
+        <p className="text-slate-500">
+          {activeTeam 
+            ? `Tasks assigned to you in ${activeTeam.name}.`
+            : "All tasks assigned to you across all teams."}
+        </p>
       </div>
 
       <div className="rounded-xl border bg-white shadow-sm overflow-hidden">

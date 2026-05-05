@@ -2,6 +2,7 @@
 // web/components/Sidebar.tsx
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useTeam } from '@/context/TeamContext';
 import { LayoutDashboard, FolderKanban, ListChecks, Users, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -15,9 +16,10 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
+  const { logout } = useTeam();
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    logout();
     router.push('/auth/login');
   };
 

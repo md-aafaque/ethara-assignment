@@ -8,7 +8,7 @@ export const authorizeTeamRole = (allowedRoles: Role[]) => {
   return async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?.id;
-      const teamId = req.params.teamId || req.body.teamId || req.query.teamId;
+      const teamId = req.params?.teamId || req.body?.teamId || req.query?.teamId;
 
       if (!userId || !teamId) {
         return res.status(400).json({ error: 'User ID and Team ID are required for authorization' });

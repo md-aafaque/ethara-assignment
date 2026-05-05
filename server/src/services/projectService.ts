@@ -19,6 +19,16 @@ export class ProjectService {
     });
   }
 
+  static async getProjectById(id: string) {
+    return prisma.project.findUnique({
+      where: { id },
+      include: {
+        tasks: true,
+        team: true,
+      },
+    });
+  }
+
   static async createProject(data: z.infer<typeof createProjectSchema>) {
     return prisma.project.create({
       data: {
