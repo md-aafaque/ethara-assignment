@@ -1,6 +1,7 @@
 // server/src/controllers/authController.ts
 import { Request, Response } from 'express';
 import { AuthService } from '../services/authService.js';
+import { AuthRequest } from '../middleware/auth.js';
 
 export class AuthController {
   static async signup(req: Request, res: Response) {
@@ -19,5 +20,9 @@ export class AuthController {
     } catch (error: any) {
       res.status(401).json({ error: error.message });
     }
+  }
+
+  static async me(req: AuthRequest, res: Response) {
+    res.json(req.user);
   }
 }
