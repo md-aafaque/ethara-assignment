@@ -28,9 +28,11 @@ const columns = [
 export function ProjectBoard({ projectId }: { projectId: string }) {
   const { activeTeam } = useTeam();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [members, setMembers] = useState<{ id: string, name: string }[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
   const [newTaskTitle, setNewTaskTitle] = useState('');
+  const [assigneeId, setAssigneeId] = useState('');
   const [creating, setCreating] = useState(false);
 
   const fetchTasks = async () => {
@@ -45,8 +47,19 @@ export function ProjectBoard({ projectId }: { projectId: string }) {
     }
   };
 
+  const fetchMembers = async () => {
+    if (!activeTeam) return;
+    try {
+      const data = await apiFetch(`/teams/${activeTeam.id}`);
+      setMembers(data.members.map((m: any) => ({ id: m.userId, name: m.user.name })));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     fetchTasks();
+    fetchMembers();
   }, [projectId, activeTeam]);
 
   const updateTaskStatus = async (taskId: string, newStatus: string) => {
@@ -72,10 +85,12 @@ export function ProjectBoard({ projectId }: { projectId: string }) {
             title: newTaskTitle, 
             projectId, 
             teamId: activeTeam.id,
-            status: 'TODO'
+            status: 'TODO',
+            assigneeId: assigneeId || undefined
         }),
       });
       setNewTaskTitle('');
+      setAssigneeId('');
       setIsCreating(false);
       fetchTasks();
     } catch (err: any) {
@@ -110,6 +125,16 @@ export function ProjectBoard({ projectId }: { projectId: string }) {
                 value={newTaskTitle}
                 onChange={(e) => setNewTaskTitle(e.target.value)}
               />
+              <select
+                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm"
+                value={assigneeId}
+                onChange={(e) => setAssigneeId(e.target.value)}
+              >
+                <option value="">Unassigned</option>
+                {members.map(member => (
+                    <option key={member.id} value={member.id}>{member.name}</option>
+                ))}
+              </select>
               <div className="flex gap-2 justify-end">
                 <button type="button" onClick={() => setIsCreating(false)} className="text-sm font-bold text-slate-500 px-4 py-2">Cancel</button>
                 <button type="submit" disabled={creating} className="bg-blue-600 text-white text-sm font-bold px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50">
